@@ -1,30 +1,18 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# (Unofficial) Tractive REST API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+[Tractive](https://tractive.com/) is a company that specializes in GPS tracking devices for pets, primarily dogs and cats. These devices allow
+owners to keep tabs on the location of their pets in real-time via a mobile app. The Tractive GPS tracker can be easily
+attached to the pet's collar and uses a combination of GPS, Wi-Fi, and cellular technology to provide accurate location
+data. The service usually requires a subscription fee for access to the GPS tracking features.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+In addition to tracking, some Tractive devices offer additional features such as activity monitoring, which gives you
+insights into your pet's daily activities and behaviors. This can be useful for pet owners looking to monitor their
+pet's health and well-being closely.
 
-## Description
+Since tractive has no official, documented public API, this will be a wrapper around their REST API.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+> **Important:** The project is in no way affiliated with Tractive. If Tractive wants the project to be removed, please
+> contact me by email.
 
 ## Installation
 
@@ -33,6 +21,8 @@ $ npm install
 ```
 
 ## Running the app
+
+To run the app, rename the ```.env.example``` file to ```.env``` and fill in your login credentials (email & password).
 
 ```bash
 # development
@@ -58,16 +48,49 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
-## Support
+## Usage
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+You can use the api itself like this:
 
-## Stay in touch
+```javascript
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+(async () => {
+  // authenticate with the username/password from the .env file
+  await fetch("http://localhost:3002/auth", {
+    method: "POST"
+  })
 
-## License
+  /**
+   * get a single location.
+   *
+   * returns:
+   * {
+   *   status: 200,
+   *   data: { location from tractive }
+   * }
+   */
+  const location = await fetch("http://localhost:3002/location?trackerId=mytrackerid")
 
-Nest is [MIT licensed](LICENSE).
+  /**
+   * get a multiple locations.
+   *
+   * returns:
+   * {
+   *   status: 200,
+   *   data: [{ location from tractive }, { location from tractive }]
+   * }
+   */
+  const locations = await fetch("http://localhost:3002/location?trackerId=mytrackerid,mysecondtrackerid")
+})
+```
+
+## Swagger
+
+This API has an Endpoint for Swagger, which you can open in your browser via:
+
+```
+http://localhost:3002/api
+```
+
+To test the capabilities, you need to authenticate yourself at first, before you make other requests. The authentication
+is currently stored in the backend, so there is no need to pass the accessToken in every request.
