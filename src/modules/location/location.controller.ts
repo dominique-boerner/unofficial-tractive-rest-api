@@ -1,6 +1,9 @@
-import { Controller, Get, Logger, Param } from '@nestjs/common';
+import { Controller, Get, HttpStatus, Logger, Param } from '@nestjs/common';
 import { LocationService } from './location.service';
 import { TrackerDto } from './tracker.dto';
+import { ApiResponse } from '../../interfaces/api-response';
+import { TractiveLocation } from '../../interfaces/tractive-location.interface';
+import { AxiosError } from 'axios';
 
 /**
  * Controller for getting tracker locations.
@@ -26,17 +29,33 @@ export class LocationController {
    * body { trackerId: "firsttrackerid,secondtrackerid,thirdtrackerid" }
    */
   @Get(':trackerId')
-  async getTrackerLocation(@Param() trackerDto: TrackerDto): Promise<any> {
+  async getTrackerLocation(
+    @Param() trackerDto: TrackerDto,
+  ): Promise<ApiResponse<TractiveLocation>> {
     try {
+      let data;
       let hasMultipleTrackerIds = trackerDto.trackerId.includes(',');
       if (hasMultipleTrackerIds) {
         const trackerIds: string[] = trackerDto.trackerId.split(',');
-        return await this.locationService.getTrackerLocations(trackerIds);
+        data = await this.locationService.getTrackerLocations(trackerIds);
+      } else {
+        data = await this.locationService.getTrackerLocation(trackerDto);
       }
-      return await this.locationService.getTrackerLocation(trackerDto);
+      return {
+        status: HttpStatus.OK,
+        data,
+      };
     } catch (e) {
+      let status = HttpStatus.INTERNAL_SERVER_ERROR;
+      if (e instanceof AxiosError) {
+        status = e.response.status;
+      }
       this.logger.error(`Error while getting tracker location: ${e.message}`);
-      return e;
+      return {
+        status,
+        data: null,
+        message: e.message,
+      };
     }
   }
 }

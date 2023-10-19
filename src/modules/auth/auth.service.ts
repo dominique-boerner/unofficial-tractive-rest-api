@@ -1,6 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
 import axios from 'axios';
-import { NotAuthenticatedException } from '../../exceptions/NotAuthenticated.exception';
 import * as process from 'process';
 import { TractiveAuth } from '../../interfaces/tractive-auth.interface';
 import { AuthenticationStore } from '../store/authentication.store';
@@ -55,7 +54,7 @@ export class AuthService {
 
       return response.data;
     } catch (e) {
-      return this.authenticationStore.lastAuthenticationCache;
+      throw e;
     }
   }
 }

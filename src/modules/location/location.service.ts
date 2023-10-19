@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { TrackerDto } from './tracker.dto';
 import { NotAuthenticatedException } from '../../exceptions/NotAuthenticated.exception';
 import { AuthenticationStore } from '../store/authentication.store';
@@ -111,6 +111,11 @@ export class LocationService {
         return this.lastLocationCache;
       }
 
+      console.log(e instanceof NotAuthenticatedException);
+
+      if (e instanceof AxiosError || e instanceof NotAuthenticatedException) {
+        throw e;
+      }
       throw new TrackerNotFoundException();
     }
   }

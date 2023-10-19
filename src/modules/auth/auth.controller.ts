@@ -1,6 +1,8 @@
-import { Controller, Logger, Post } from '@nestjs/common';
+import { Controller, HttpStatus, Logger, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { TractiveAuth } from '../../interfaces/tractive-auth.interface';
+import { ApiResponse } from '../../interfaces/api-response';
+import { AxiosError } from 'axios';
 
 /**
  * This controller handles authentication of the user against the tractive API.
@@ -20,11 +22,26 @@ export class AuthController {
    * POST "http://localhost:3000/auth
    */
   @Post()
-  async authenticate(): Promise<TractiveAuth> {
+  async authenticate(): Promise<ApiResponse<TractiveAuth>> {
     try {
-      return await this.authService.authenticate();
+      let data = await this.authService.authenticate();
+      const okResponse: ApiResponse<TractiveAuth> = {
+        status: HttpStatus.OK,
+        data,
+      };
+      return okResponse;
     } catch (e) {
+      let status = HttpStatus.INTERNAL_SERVER_ERROR;
+      if (e instanceof AxiosError) {
+        status = e.response.status;
+      }
+      const errorResponse: ApiResponse<TractiveAuth> = {
+        status,
+        data: null,
+        message: e.message,
+      };
       this.logger.log(`Error while authentication: ${e.message}`);
+      return errorResponse;
     }
   }
 }
