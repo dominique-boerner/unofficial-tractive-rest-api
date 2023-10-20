@@ -1,4 +1,4 @@
-import { Controller, HttpStatus, Logger, Post } from '@nestjs/common';
+import { Controller, Get, HttpStatus, Logger } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { TractiveAuth } from '../../interfaces/tractive-auth.interface';
 import { ApiResponse } from '../../interfaces/api-response';
@@ -19,17 +19,16 @@ export class AuthController {
    * Authenticate the user against the tractive api.
    * The email and password is inside the .env file of the api.
    * @example
-   * POST "http://localhost:3000/auth
+   * GET "http://localhost:3000/auth
    */
-  @Post()
+  @Get()
   async authenticate(): Promise<ApiResponse<TractiveAuth>> {
     try {
       let data = await this.authService.authenticate();
-      const okResponse: ApiResponse<TractiveAuth> = {
+      return {
         status: HttpStatus.OK,
         data,
       };
-      return okResponse;
     } catch (e) {
       let status = HttpStatus.INTERNAL_SERVER_ERROR;
       if (e instanceof AxiosError) {

@@ -56,9 +56,7 @@ You can use the api itself like this:
 
 (async () => {
   // authenticate with the username/password from the .env file
-  await fetch("http://localhost:3002/auth", {
-    method: "POST"
-  })
+  await fetch("http://localhost:3002/auth")
 
   /**
    * get a single location.
