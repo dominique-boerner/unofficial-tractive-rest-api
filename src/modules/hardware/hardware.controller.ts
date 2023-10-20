@@ -1,35 +1,35 @@
 import { Controller, Get, HttpStatus, Logger, Param } from '@nestjs/common';
-import { LocationService } from './location.service';
-import { TrackerDto } from '../../dto/tracker.dto';
+import { HardwareService } from './hardware.service';
 import { ApiResponse } from '../../interfaces/api-response';
 import { TractiveLocation } from '../../interfaces/tractive-location.interface';
 import { AxiosError } from 'axios';
+import { TrackerDto } from '../../dto/tracker.dto';
 
 /**
- * Controller for getting tracker locations.
+ * Controller for getting hardware information.
  */
 @Controller({
-  path: 'location',
+  path: 'hardware',
 })
-export class LocationController {
-  private readonly logger = new Logger(LocationController.name);
+export class HardwareController {
+  private readonly logger = new Logger(HardwareController.name);
 
-  constructor(private readonly locationService: LocationService) {}
+  constructor(private readonly hardwareService: HardwareService) {}
 
   /**
-   * Get tracker location of a single or multiple trackers.
+   * Get hardware report of a tracker.
    * @param trackerDto the trackerId
    * @example
-   * // get location of a single tracker
-   * POST "http://localhost:3000/location
+   * // get hardware report of a single tracker
+   * POST "http://localhost:3000/hardware
    * body { trackerId: "mytrackerid" }
    *
-   * // get location of multiple trackers
-   * POST "http://localhost:3000/location
+   * // get hardware report of multiple trackers
+   * POST "http://localhost:3000/hardware
    * body { trackerId: "firsttrackerid,secondtrackerid,thirdtrackerid" }
    */
   @Get(':trackerId')
-  async getTrackerLocation(
+  async getHardwareReport(
     @Param() trackerDto: TrackerDto,
   ): Promise<ApiResponse<TractiveLocation>> {
     try {
@@ -37,9 +37,9 @@ export class LocationController {
       let hasMultipleTrackerIds = trackerDto.trackerId.includes(',');
       if (hasMultipleTrackerIds) {
         const trackerIds: string[] = trackerDto.trackerId.split(',');
-        data = await this.locationService.getTrackerLocations(trackerIds);
+        data = await this.hardwareService.getTrackerLocations(trackerIds);
       } else {
-        data = await this.locationService.getTrackerLocation(trackerDto);
+        data = await this.hardwareService.getTrackerHardware(trackerDto);
       }
       return {
         status: HttpStatus.OK,
@@ -50,7 +50,9 @@ export class LocationController {
       if (e instanceof AxiosError) {
         status = e.response.status;
       }
-      this.logger.error(`Error while getting tracker location: ${e.message}`);
+      this.logger.error(
+        `Error while getting tracker hardware report: ${e.message}`,
+      );
       return {
         status,
         data: null,

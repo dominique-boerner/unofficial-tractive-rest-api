@@ -1,30 +1,32 @@
 import { Injectable, Logger } from '@nestjs/common';
 import axios, { AxiosError } from 'axios';
-import { TrackerDto } from '../../dto/tracker.dto';
 import { NotAuthenticatedException } from '../../exceptions/NotAuthenticated.exception';
 import { AuthenticationStore } from '../store/authentication.store';
 import { TrackerNotFoundException } from '../../exceptions/TrackerNotFoundException';
-import { TractiveLocation } from '../../interfaces/tractive-location.interface';
+import { TrackerDto } from '../../dto/tracker.dto';
+import { TractiveHardware } from '../../interfaces/tractive-hardware.interface';
 
 /**
- * Service for getting location information from the tracker.
+ * Service for getting hardware information from the tracker.
  */
 @Injectable()
-export class LocationService {
-  private readonly logger = new Logger(LocationService.name);
+export class HardwareService {
+  private readonly logger = new Logger(HardwareService.name);
 
-  private lastLocationCache = null;
+  private lastReportCache = null;
 
   constructor(private readonly authenticationStore: AuthenticationStore) {}
 
   /**
-   * Get the tracker location
+   * Get tracker hardware information for a single tracker.
    *
-   * We cache the last tracker location, because if tractive gets many requests,
+   * We cache the last tracker hardware report, because if tractive gets many requests,
    * this could return null.
    * @param trackerDto the tracker id
    */
-  public async getTrackerLocation(trackerDto: TrackerDto) {
+  public async getTrackerHardware(
+    trackerDto: TrackerDto,
+  ): Promise<TractiveHardware> {
     let trackerId = trackerDto.trackerId;
     this.logger.log(`Get tracker location for tracker '${trackerId}'`);
 
@@ -34,13 +36,13 @@ export class LocationService {
     }
 
     try {
-      return await this.fetchTrackerLocation(trackerId);
+      return await this.fetchTrackerHardware(trackerId);
     } catch (e) {
-      if (this.lastLocationCache) {
+      if (this.lastReportCache) {
         this.logger.error(
-          `Error while getting tracker location. Return last tracker location instead`,
+          `Error while getting tracker hardware report. Return last report instead`,
         );
-        return this.lastLocationCache;
+        return this.lastReportCache;
       }
 
       throw new TrackerNotFoundException();
@@ -48,26 +50,28 @@ export class LocationService {
   }
 
   /**
-   * Get multiple tracker locations
+   * Get tracker hardware information for multiple tracker.
    *
-   * We cache the last tracker location, because if tractive gets many requests,
+   * We cache the last tracker hardware report, because if tractive gets many requests,
    * this could return null.
-   * @param trackerIds ids of the tracker, separated by comma
+   * @param trackerIds the tracker ids
    */
-  public async getTrackerLocations(trackerIds: string[]) {
+  public async getTrackerLocations(
+    trackerIds: string[],
+  ): Promise<TractiveHardware[]> {
     this.logger.log(`Get tracker location for trackers '${trackerIds}'`);
 
     try {
       const promises = trackerIds.map((trackerId) =>
-        this.fetchTrackerLocation(trackerId),
+        this.fetchTrackerHardware(trackerId),
       );
-      return await Promise.all<TractiveLocation>(promises);
+      return await Promise.all<TractiveHardware>(promises);
     } catch (e) {
-      if (this.lastLocationCache) {
+      if (this.lastReportCache) {
         this.logger.error(
           `Error while getting tracker location. Return last tracker location instead`,
         );
-        return this.lastLocationCache;
+        return this.lastReportCache;
       }
 
       throw new TrackerNotFoundException();
@@ -79,11 +83,11 @@ export class LocationService {
    * @param trackerId the id of the tracker
    * @private
    */
-  private async fetchTrackerLocation(
+  private async fetchTrackerHardware(
     trackerId: string,
-  ): Promise<TractiveLocation> {
+  ): Promise<TractiveHardware> {
     try {
-      const url = `https://graph.tractive.com/4/device_pos_report/${trackerId}`;
+      const url = `https://graph.tractive.com/4/device_hw_report/${trackerId}`;
       const bearer = this.authenticationStore.accessToken;
       if (!bearer) {
         throw new NotAuthenticatedException();
@@ -98,17 +102,17 @@ export class LocationService {
       });
 
       // we cache the last location
-      this.lastLocationCache = response.data;
+      this.lastReportCache = response.data;
 
       this.logger.log(`Tracker location found`);
 
       return response.data;
     } catch (e) {
-      if (this.lastLocationCache) {
+      if (this.lastReportCache) {
         this.logger.error(
-          `Error while getting tracker location. Return last tracker location instead`,
+          `Error while getting tracker hardware report. Return last report instead`,
         );
-        return this.lastLocationCache;
+        return this.lastReportCache;
       }
 
       console.log(e instanceof NotAuthenticatedException);
