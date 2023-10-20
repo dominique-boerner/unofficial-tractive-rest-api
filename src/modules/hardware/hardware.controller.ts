@@ -60,4 +60,49 @@ export class HardwareController {
       };
     }
   }
+
+  /**
+   * Get battery level of a tracker.
+   * @param trackerDto the trackerId
+   * @example
+   * // get battery report of a single tracker
+   * POST "http://localhost:3000/hardware/battery
+   * body { trackerId: "mytrackerid" }
+   *
+   * // get battery report of multiple trackers
+   * POST "http://localhost:3000/hardware/battery
+   * body { trackerId: "firsttrackerid,secondtrackerid,thirdtrackerid" }
+   */
+  @Get('battery/:trackerId')
+  async getBattery(
+    @Param() trackerDto: TrackerDto,
+  ): Promise<ApiResponse<TractiveLocation>> {
+    try {
+      let data;
+      let hasMultipleTrackerIds = trackerDto.trackerId.includes(',');
+      if (hasMultipleTrackerIds) {
+        const trackerIds: string[] = trackerDto.trackerId.split(',');
+        data = await this.hardwareService.getBatteryLevels(trackerIds);
+      } else {
+        data = await this.hardwareService.getBatteryLevel(trackerDto);
+      }
+      return {
+        status: HttpStatus.OK,
+        data,
+      };
+    } catch (e) {
+      let status = HttpStatus.INTERNAL_SERVER_ERROR;
+      if (e instanceof AxiosError) {
+        status = e.response.status;
+      }
+      this.logger.error(
+        `Error while getting tracker battery level: ${e.message}`,
+      );
+      return {
+        status,
+        data: null,
+        message: e.message,
+      };
+    }
+  }
 }

@@ -13,7 +13,7 @@ import { TractiveHardware } from '../../interfaces/tractive-hardware.interface';
 export class HardwareService {
   private readonly logger = new Logger(HardwareService.name);
 
-  private lastReportCache = null;
+  private lastReportCache: TractiveHardware = null;
 
   constructor(private readonly authenticationStore: AuthenticationStore) {}
 
@@ -28,7 +28,7 @@ export class HardwareService {
     trackerDto: TrackerDto,
   ): Promise<TractiveHardware> {
     let trackerId = trackerDto.trackerId;
-    this.logger.log(`Get tracker location for tracker '${trackerId}'`);
+    this.logger.log(`Get hardware report for tracker '${trackerId}'`);
 
     const bearer = this.authenticationStore.accessToken;
     if (!bearer) {
@@ -59,7 +59,7 @@ export class HardwareService {
   public async getTrackerLocations(
     trackerIds: string[],
   ): Promise<TractiveHardware[]> {
-    this.logger.log(`Get tracker location for trackers '${trackerIds}'`);
+    this.logger.log(`Get hardware report for trackers '${trackerIds}'`);
 
     try {
       const promises = trackerIds.map((trackerId) =>
@@ -71,7 +71,54 @@ export class HardwareService {
         this.logger.error(
           `Error while getting tracker location. Return last tracker location instead`,
         );
-        return this.lastReportCache;
+        return trackerIds.map(() => this.lastReportCache);
+      }
+
+      throw new TrackerNotFoundException();
+    }
+  }
+
+  /**
+   * Get the battery level of a single tracker
+   * @param trackerDto the tracker to get the battery level from.
+   */
+  public async getBatteryLevel(trackerDto: TrackerDto): Promise<number> {
+    this.logger.log(`Get battery level for tracker '${trackerDto}'`);
+
+    try {
+      const result = await this.fetchTrackerHardware(trackerDto.trackerId);
+      return result.battery_level;
+    } catch (e) {
+      if (this.lastReportCache) {
+        this.logger.error(
+          `Error while getting battery level. Return last battery level instead`,
+        );
+        return this.lastReportCache.battery_level;
+      }
+
+      throw new TrackerNotFoundException();
+    }
+  }
+
+  /**
+   * Get the battery level of multiple trackers.
+   * @param trackerIds the tracker ids to get battery level from.
+   */
+  public async getBatteryLevels(trackerIds: string[]): Promise<number[]> {
+    this.logger.log(`Get battery level for trackers '${trackerIds}'`);
+
+    try {
+      const promises = trackerIds.map((trackerId) =>
+        this.fetchTrackerHardware(trackerId),
+      );
+      const result = await Promise.all<TractiveHardware>(promises);
+      return result.map((report) => report.battery_level);
+    } catch (e) {
+      if (this.lastReportCache) {
+        this.logger.error(
+          `Error while getting battery level. Return last battery level instead`,
+        );
+        return trackerIds.map(() => this.lastReportCache.battery_level);
       }
 
       throw new TrackerNotFoundException();
