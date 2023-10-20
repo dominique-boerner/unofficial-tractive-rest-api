@@ -3,6 +3,7 @@ import axios from 'axios';
 import * as process from 'process';
 import { TractiveAuth } from '../../interfaces/tractive-auth.interface';
 import { AuthenticationStore } from '../store/authentication.store';
+import { TractiveApi } from '../../constants';
 
 /**
  * Service for authentication the user against the tractive API.
@@ -19,7 +20,7 @@ export class AuthService {
    * the user is not authenticated.
    */
   public async authenticate(): Promise<TractiveAuth> {
-    const url = 'https://graph.tractive.com/4/auth/token';
+    const url = `${TractiveApi.BASE_URL}/auth/token`;
     const email = process.env.TRACTIVE_EMAIL;
     const password = process.env.TRACTIVE_PASSWORD;
 

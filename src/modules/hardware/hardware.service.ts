@@ -5,6 +5,7 @@ import { AuthenticationStore } from '../store/authentication.store';
 import { TrackerNotFoundException } from '../../exceptions/TrackerNotFoundException';
 import { TrackerDto } from '../../dto/tracker.dto';
 import { TractiveHardware } from '../../interfaces/tractive-hardware.interface';
+import { TractiveApi } from '../../constants';
 
 /**
  * Service for getting hardware information from the tracker.
@@ -134,7 +135,7 @@ export class HardwareService {
     trackerId: string,
   ): Promise<TractiveHardware> {
     try {
-      const url = `https://graph.tractive.com/4/device_hw_report/${trackerId}`;
+      const url = `${TractiveApi.BASE_URL}/device_hw_report/${trackerId}`;
       const bearer = this.authenticationStore.accessToken;
       if (!bearer) {
         throw new NotAuthenticatedException();

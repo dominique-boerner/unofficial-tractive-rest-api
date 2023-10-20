@@ -5,6 +5,7 @@ import { NotAuthenticatedException } from '../../exceptions/NotAuthenticated.exc
 import { AuthenticationStore } from '../store/authentication.store';
 import { TrackerNotFoundException } from '../../exceptions/TrackerNotFoundException';
 import { TractiveLocation } from '../../interfaces/tractive-location.interface';
+import { TractiveApi } from '../../constants';
 
 /**
  * Service for getting location information from the tracker.
@@ -83,7 +84,7 @@ export class LocationService {
     trackerId: string,
   ): Promise<TractiveLocation> {
     try {
-      const url = `https://graph.tractive.com/4/device_pos_report/${trackerId}`;
+      const url = `${TractiveApi.BASE_URL}/device_pos_report/${trackerId}`;
       const bearer = this.authenticationStore.accessToken;
       if (!bearer) {
         throw new NotAuthenticatedException();
