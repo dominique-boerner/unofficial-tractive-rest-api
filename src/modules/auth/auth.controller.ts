@@ -19,7 +19,7 @@ export class AuthController {
    * Authenticate the user against the tractive api.
    * The email and password is inside the .env file of the api.
    * @example
-   * GET "http://localhost:3000/auth
+   * GET "http://localhost:3002/auth
    */
   @Get()
   async authenticate(): Promise<ApiResponse<TractiveAuth>> {
@@ -40,6 +40,33 @@ export class AuthController {
         message: e.message,
       };
       this.logger.log(`Error while authentication: ${e.message}`);
+      return errorResponse;
+    }
+  }
+
+  /**
+   * Checks if the user is currently authenticated.
+   * @example
+   * GET "http://localhost:3002/auth/is-authenticated
+   */
+  @Get('is-authenticated')
+  async isUserAuthenticated(): Promise<ApiResponse<boolean>> {
+    try {
+      let data = await this.authService.isAuthenticated();
+      return {
+        status: HttpStatus.OK,
+        data,
+      };
+    } catch (e) {
+      let status = HttpStatus.INTERNAL_SERVER_ERROR;
+      const errorResponse: ApiResponse<boolean> = {
+        status,
+        data: false,
+        message: e.message,
+      };
+      this.logger.log(
+        `Error while calculating if user is authenticated: ${e.message}`,
+      );
       return errorResponse;
     }
   }

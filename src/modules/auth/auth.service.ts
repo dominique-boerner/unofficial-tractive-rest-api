@@ -57,4 +57,11 @@ export class AuthService {
       throw e;
     }
   }
+
+  /**
+   * Returns if the user is authenticated.
+   */
+  public async isAuthenticated(): Promise<boolean> {
+    return this.authenticationStore.lastAuthenticationCache !== null;
+  }
 }
