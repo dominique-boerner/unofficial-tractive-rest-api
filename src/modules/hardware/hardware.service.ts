@@ -99,7 +99,7 @@ export class HardwareService {
   }
 
   /**
-   * Fetch a tracker location
+   * Fetch tracker hardware report
    * @param trackerId the id of the tracker
    * @private
    */
@@ -122,10 +122,10 @@ export class HardwareService {
         },
       });
 
-      // we cache the last location
+      // we cache the last report
       this.lastReportCache = response.data;
 
-      this.logger.log(`Tracker location found`);
+      this.logger.log(`Tracker hardware report found`);
 
       return response.data;
     } catch (e) {
