@@ -82,7 +82,7 @@ You can use the api itself like this:
 })
 ```
 
-## Swagger
+## Features
 
 This API has an Endpoint for Swagger, which you can open in your browser via:
 

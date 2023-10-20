@@ -1,0 +1,58 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/location/{trackerId}": {
+      "get": {
+        "operationId": "LocationController_getTrackerLocation",
+        "parameters": [
+          {
+            "name": "trackerId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/auth": {
+      "get": {
+        "operationId": "AuthController_authenticate",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/auth/is-authenticated": {
+      "get": {
+        "operationId": "AuthController_isUserAuthenticated",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    }
+  },
+  "info": {
+    "title": "tractive REST API",
+    "description": "",
+    "version": "1.0.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "schemas": {}
+  }
+}
