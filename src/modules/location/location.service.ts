@@ -37,14 +37,7 @@ export class LocationService {
     try {
       return await this.fetchTrackerLocation(trackerId);
     } catch (e) {
-      if (this.lastLocationCache) {
-        this.logger.error(
-          `Error while getting tracker location. Return last tracker location instead`,
-        );
-        return this.lastLocationCache;
-      }
-
-      throw new TrackerNotFoundException();
+      throw e;
     }
   }
 
@@ -64,14 +57,7 @@ export class LocationService {
       );
       return await Promise.all<TractiveLocation>(promises);
     } catch (e) {
-      if (this.lastLocationCache) {
-        this.logger.error(
-          `Error while getting tracker location. Return last tracker location instead`,
-        );
-        return this.lastLocationCache;
-      }
-
-      throw new TrackerNotFoundException();
+      throw e;
     }
   }
 
@@ -83,12 +69,12 @@ export class LocationService {
   private async fetchTrackerLocation(
     trackerId: string,
   ): Promise<TractiveLocation> {
+    const bearer = this.authenticationStore.accessToken;
+    if (!bearer) {
+      throw new NotAuthenticatedException();
+    }
     try {
       const url = `${TractiveApi.BASE_URL}/device_pos_report/${trackerId}`;
-      const bearer = this.authenticationStore.accessToken;
-      if (!bearer) {
-        throw new NotAuthenticatedException();
-      }
 
       const response = await axios.get(url, {
         headers: {
@@ -105,6 +91,10 @@ export class LocationService {
 
       return response.data;
     } catch (e) {
+      if (e instanceof NotAuthenticatedException) {
+        throw e;
+      }
+
       if (this.lastLocationCache) {
         this.logger.error(
           `Error while getting tracker location. Return last tracker location instead`,
@@ -112,11 +102,6 @@ export class LocationService {
         return this.lastLocationCache;
       }
 
-      console.log(e instanceof NotAuthenticatedException);
-
-      if (e instanceof AxiosError || e instanceof NotAuthenticatedException) {
-        throw e;
-      }
       throw new TrackerNotFoundException();
     }
   }

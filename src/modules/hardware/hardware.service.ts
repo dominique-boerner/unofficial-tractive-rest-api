@@ -39,14 +39,7 @@ export class HardwareService {
     try {
       return await this.fetchTrackerHardware(trackerId);
     } catch (e) {
-      if (this.lastReportCache) {
-        this.logger.error(
-          `Error while getting tracker hardware report. Return last report instead`,
-        );
-        return this.lastReportCache;
-      }
-
-      throw new TrackerNotFoundException();
+      throw e;
     }
   }
 
@@ -68,14 +61,7 @@ export class HardwareService {
       );
       return await Promise.all<TractiveHardware>(promises);
     } catch (e) {
-      if (this.lastReportCache) {
-        this.logger.error(
-          `Error while getting tracker location. Return last tracker location instead`,
-        );
-        return trackerIds.map(() => this.lastReportCache);
-      }
-
-      throw new TrackerNotFoundException();
+      throw e;
     }
   }
 
@@ -90,14 +76,7 @@ export class HardwareService {
       const result = await this.fetchTrackerHardware(trackerDto.trackerId);
       return result.battery_level;
     } catch (e) {
-      if (this.lastReportCache) {
-        this.logger.error(
-          `Error while getting battery level. Return last battery level instead`,
-        );
-        return this.lastReportCache.battery_level;
-      }
-
-      throw new TrackerNotFoundException();
+      throw e;
     }
   }
 
@@ -115,14 +94,7 @@ export class HardwareService {
       const result = await Promise.all<TractiveHardware>(promises);
       return result.map((report) => report.battery_level);
     } catch (e) {
-      if (this.lastReportCache) {
-        this.logger.error(
-          `Error while getting battery level. Return last battery level instead`,
-        );
-        return trackerIds.map(() => this.lastReportCache.battery_level);
-      }
-
-      throw new TrackerNotFoundException();
+      throw e;
     }
   }
 
@@ -134,12 +106,13 @@ export class HardwareService {
   private async fetchTrackerHardware(
     trackerId: string,
   ): Promise<TractiveHardware> {
+    const bearer = this.authenticationStore.accessToken;
+    if (!bearer) {
+      throw new NotAuthenticatedException();
+    }
+
     try {
       const url = `${TractiveApi.BASE_URL}/device_hw_report/${trackerId}`;
-      const bearer = this.authenticationStore.accessToken;
-      if (!bearer) {
-        throw new NotAuthenticatedException();
-      }
 
       const response = await axios.get(url, {
         headers: {
@@ -163,11 +136,6 @@ export class HardwareService {
         return this.lastReportCache;
       }
 
-      console.log(e instanceof NotAuthenticatedException);
-
-      if (e instanceof AxiosError || e instanceof NotAuthenticatedException) {
-        throw e;
-      }
       throw new TrackerNotFoundException();
     }
   }
