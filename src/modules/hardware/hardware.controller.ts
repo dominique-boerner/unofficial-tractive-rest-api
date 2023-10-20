@@ -21,11 +21,11 @@ export class HardwareController {
    * @param trackerDto the trackerId
    * @example
    * // get hardware report of a single tracker
-   * POST "http://localhost:3000/hardware
+   * GET "http://localhost:3000/hardware
    * body { trackerId: "mytrackerid" }
    *
    * // get hardware report of multiple trackers
-   * POST "http://localhost:3000/hardware
+   * GET "http://localhost:3000/hardware
    * body { trackerId: "firsttrackerid,secondtrackerid,thirdtrackerid" }
    */
   @Get(':trackerId')
@@ -66,11 +66,11 @@ export class HardwareController {
    * @param trackerDto the trackerId
    * @example
    * // get battery report of a single tracker
-   * POST "http://localhost:3000/hardware/battery
+   * GET "http://localhost:3000/hardware/battery
    * body { trackerId: "mytrackerid" }
    *
    * // get battery report of multiple trackers
-   * POST "http://localhost:3000/hardware/battery
+   * GET "http://localhost:3000/hardware/battery
    * body { trackerId: "firsttrackerid,secondtrackerid,thirdtrackerid" }
    */
   @Get('battery/:trackerId')
