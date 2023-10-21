@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 import { NotAuthenticatedException } from '../../exceptions/NotAuthenticated.exception';
 import { AuthenticationStore } from '../store/authentication.store';
 import { TrackerNotFoundException } from '../../exceptions/TrackerNotFoundException';

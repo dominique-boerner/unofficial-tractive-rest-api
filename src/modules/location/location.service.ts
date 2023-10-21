@@ -1,11 +1,11 @@
-import { Injectable, Logger } from '@nestjs/common';
-import axios, { AxiosError } from 'axios';
-import { TrackerDto } from '../../dto/tracker.dto';
-import { NotAuthenticatedException } from '../../exceptions/NotAuthenticated.exception';
-import { AuthenticationStore } from '../store/authentication.store';
-import { TrackerNotFoundException } from '../../exceptions/TrackerNotFoundException';
-import { TractiveLocation } from '../../interfaces/tractive-location.interface';
-import { TractiveApi } from '../../constants';
+import { Injectable, Logger } from "@nestjs/common";
+import axios from "axios";
+import { TrackerDto } from "../../dto/tracker.dto";
+import { NotAuthenticatedException } from "../../exceptions/NotAuthenticated.exception";
+import { AuthenticationStore } from "../store/authentication.store";
+import { TrackerNotFoundException } from "../../exceptions/TrackerNotFoundException";
+import { TractiveLocation } from "../../interfaces/tractive-location.interface";
+import { TractiveApi } from "../../constants";
 
 /**
  * Service for getting location information from the tracker.
@@ -19,13 +19,12 @@ export class LocationService {
   constructor(private readonly authenticationStore: AuthenticationStore) {}
 
   /**
-   * Get the tracker location
-   *
-   * We cache the last tracker location, because if tractive gets many requests,
-   * this could return null.
+   * Get the tracker location.
    * @param trackerDto the tracker id
    */
-  public async getTrackerLocation(trackerDto: TrackerDto) {
+  public async getTrackerLocation(
+    trackerDto: TrackerDto,
+  ): Promise<TractiveLocation> {
     let trackerId = trackerDto.trackerId;
     this.logger.log(`Get tracker location for tracker '${trackerId}'`);
 
@@ -42,13 +41,12 @@ export class LocationService {
   }
 
   /**
-   * Get multiple tracker locations
-   *
-   * We cache the last tracker location, because if tractive gets many requests,
-   * this could return null.
+   * Get multiple tracker locations.
    * @param trackerIds ids of the tracker, separated by comma
    */
-  public async getTrackerLocations(trackerIds: string[]) {
+  public async getTrackerLocations(
+    trackerIds: string[],
+  ): Promise<TractiveLocation[]> {
     this.logger.log(`Get tracker location for trackers '${trackerIds}'`);
 
     try {
