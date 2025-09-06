@@ -76,7 +76,7 @@ export class LocationService {
 
       const response = await axios.get(url, {
         headers: {
-          'X-Tractive-Client': '625e533dc3c3b41c28a669f0',
+          'X-Tractive-Client': TractiveApi.CLIENT_ID,
           'Content-Type': 'application/json',
           Authorization: `Bearer ${bearer}`,
         },
