@@ -7,6 +7,13 @@ import { NotAuthenticatedException } from '../../exceptions/NotAuthenticated.exc
  */
 @Injectable()
 export class AuthenticationStore {
+  /**
+   * Safety margin (in seconds) before the actual expiry at which we already
+   * treat the cached token as expired, so we never use a token that would
+   * expire while a request is still in flight.
+   */
+  private static readonly EXPIRY_BUFFER_SECONDS = 60;
+
   private _lastAuthenticationCache: TractiveAuth = null;
 
   get lastAuthenticationCache(): TractiveAuth {
@@ -23,5 +30,21 @@ export class AuthenticationStore {
     } catch (e) {
       throw new NotAuthenticatedException();
     }
+  }
+
+  /**
+   * Returns true if there is a cached authentication whose token has not
+   * expired yet. Tractive returns `expires_at` as a unix timestamp in seconds.
+   */
+  get hasValidAuthentication(): boolean {
+    if (!this._lastAuthenticationCache) {
+      return false;
+    }
+    const nowInSeconds = Math.floor(Date.now() / 1000);
+    return (
+      this._lastAuthenticationCache.expires_at -
+        AuthenticationStore.EXPIRY_BUFFER_SECONDS >
+      nowInSeconds
+    );
   }
 }

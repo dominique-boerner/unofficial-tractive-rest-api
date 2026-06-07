@@ -26,9 +26,9 @@ export class AuthService {
 
     this.logger.log(`Authenticate the user '${email}'`);
 
-    // TODO: check if "this.authenticationStore.lastAuthenticationCache.expires_at" is bigger
-    //       than current date.
-    if (this.authenticationStore.lastAuthenticationCache) {
+    // Reuse the cached credentials only while the token is still valid.
+    // Once it has expired we fall through and request a fresh token.
+    if (this.authenticationStore.hasValidAuthentication) {
       this.logger.log(
         `User is already authenticated. Return last authenticated credentials`,
       );
@@ -60,9 +60,9 @@ export class AuthService {
   }
 
   /**
-   * Returns if the user is authenticated.
+   * Returns if the user is authenticated with a token that has not expired yet.
    */
   public async isAuthenticated(): Promise<boolean> {
-    return this.authenticationStore.lastAuthenticationCache !== null;
+    return this.authenticationStore.hasValidAuthentication;
   }
 }
