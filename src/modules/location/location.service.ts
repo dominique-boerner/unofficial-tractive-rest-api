@@ -14,7 +14,12 @@ import { TractiveApi } from "../../constants";
 export class LocationService {
   private readonly logger = new Logger(LocationService.name);
 
-  private lastLocationCache = null;
+  /**
+   * Caches the last known location per tracker id, so a transient error for one
+   * tracker can fall back to that tracker's own last value — never another
+   * tracker's.
+   */
+  private readonly lastLocationCache = new Map<string, TractiveLocation>();
 
   constructor(private readonly authenticationStore: AuthenticationStore) {}
 
@@ -82,8 +87,8 @@ export class LocationService {
         },
       });
 
-      // we cache the last location
-      this.lastLocationCache = response.data;
+      // cache the last known location for this tracker
+      this.lastLocationCache.set(trackerId, response.data);
 
       this.logger.log(`Tracker location found`);
 
@@ -93,11 +98,12 @@ export class LocationService {
         throw e;
       }
 
-      if (this.lastLocationCache) {
+      const cachedLocation = this.lastLocationCache.get(trackerId);
+      if (cachedLocation) {
         this.logger.error(
-          `Error while getting tracker location. Return last tracker location instead`,
+          `Error while getting tracker location for '${trackerId}'. Return last known location for this tracker instead`,
         );
-        return this.lastLocationCache;
+        return cachedLocation;
       }
 
       throw new TrackerNotFoundException();

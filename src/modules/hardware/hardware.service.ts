@@ -14,7 +14,12 @@ import { TractiveApi } from '../../constants';
 export class HardwareService {
   private readonly logger = new Logger(HardwareService.name);
 
-  private lastReportCache: TractiveHardware = null;
+  /**
+   * Caches the last known hardware report per tracker id, so a transient error
+   * for one tracker can fall back to that tracker's own last value — never
+   * another tracker's.
+   */
+  private readonly lastReportCache = new Map<string, TractiveHardware>();
 
   constructor(private readonly authenticationStore: AuthenticationStore) {}
 
@@ -122,18 +127,19 @@ export class HardwareService {
         },
       });
 
-      // we cache the last report
-      this.lastReportCache = response.data;
+      // cache the last known report for this tracker
+      this.lastReportCache.set(trackerId, response.data);
 
       this.logger.log(`Tracker hardware report found`);
 
       return response.data;
     } catch (e) {
-      if (this.lastReportCache) {
+      const cachedReport = this.lastReportCache.get(trackerId);
+      if (cachedReport) {
         this.logger.error(
-          `Error while getting tracker hardware report. Return last report instead`,
+          `Error while getting tracker hardware report for '${trackerId}'. Return last known report for this tracker instead`,
         );
-        return this.lastReportCache;
+        return cachedReport;
       }
 
       throw new TrackerNotFoundException();
