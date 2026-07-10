@@ -31,7 +31,7 @@ export class LocationService {
     trackerDto: TrackerDto,
   ): Promise<TractiveLocation> {
     let trackerId = trackerDto.trackerId;
-    this.logger.log(`Get tracker location for tracker '${trackerId}'`);
+    this.logger.log(`Get tracker location for one tracker`);
 
     const bearer = this.authenticationStore.accessToken;
     if (!bearer) {
@@ -52,7 +52,7 @@ export class LocationService {
   public async getTrackerLocations(
     trackerIds: string[],
   ): Promise<TractiveLocation[]> {
-    this.logger.log(`Get tracker location for trackers '${trackerIds}'`);
+    this.logger.log(`Get tracker location for ${trackerIds.length} trackers`);
 
     try {
       const promises = trackerIds.map((trackerId) =>
@@ -101,7 +101,7 @@ export class LocationService {
       const cachedLocation = this.lastLocationCache.get(trackerId);
       if (cachedLocation) {
         this.logger.error(
-          `Error while getting tracker location for '${trackerId}'. Return last known location for this tracker instead`,
+          `Error while getting tracker location. Return last known location for this tracker instead`,
         );
         return cachedLocation;
       }

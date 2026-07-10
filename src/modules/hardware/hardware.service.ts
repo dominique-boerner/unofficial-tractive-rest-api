@@ -34,7 +34,7 @@ export class HardwareService {
     trackerDto: TrackerDto,
   ): Promise<TractiveHardware> {
     let trackerId = trackerDto.trackerId;
-    this.logger.log(`Get hardware report for tracker '${trackerId}'`);
+    this.logger.log(`Get hardware report for one tracker`);
 
     const bearer = this.authenticationStore.accessToken;
     if (!bearer) {
@@ -58,7 +58,7 @@ export class HardwareService {
   public async getTrackerLocations(
     trackerIds: string[],
   ): Promise<TractiveHardware[]> {
-    this.logger.log(`Get hardware report for trackers '${trackerIds}'`);
+    this.logger.log(`Get hardware report for ${trackerIds.length} trackers`);
 
     try {
       const promises = trackerIds.map((trackerId) =>
@@ -75,7 +75,7 @@ export class HardwareService {
    * @param trackerDto the tracker to get the battery level from.
    */
   public async getBatteryLevel(trackerDto: TrackerDto): Promise<number> {
-    this.logger.log(`Get battery level for tracker '${trackerDto}'`);
+    this.logger.log(`Get battery level for one tracker`);
 
     try {
       const result = await this.fetchTrackerHardware(trackerDto.trackerId);
@@ -90,7 +90,7 @@ export class HardwareService {
    * @param trackerIds the tracker ids to get battery level from.
    */
   public async getBatteryLevels(trackerIds: string[]): Promise<number[]> {
-    this.logger.log(`Get battery level for trackers '${trackerIds}'`);
+    this.logger.log(`Get battery level for ${trackerIds.length} trackers`);
 
     try {
       const promises = trackerIds.map((trackerId) =>
@@ -137,7 +137,7 @@ export class HardwareService {
       const cachedReport = this.lastReportCache.get(trackerId);
       if (cachedReport) {
         this.logger.error(
-          `Error while getting tracker hardware report for '${trackerId}'. Return last known report for this tracker instead`,
+          `Error while getting tracker hardware report. Return last known report for this tracker instead`,
         );
         return cachedReport;
       }

@@ -24,7 +24,7 @@ export class AuthService {
     const email = process.env.TRACTIVE_EMAIL;
     const password = process.env.TRACTIVE_PASSWORD;
 
-    this.logger.log(`Authenticate the user '${email}'`);
+    this.logger.log(`Authenticate Tractive user`);
 
     // Reuse the cached credentials only while the token is still valid.
     // Once it has expired we fall through and request a fresh token.
