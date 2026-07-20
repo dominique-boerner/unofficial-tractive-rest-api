@@ -24,6 +24,9 @@ $ npm install
 
 To run the app, rename the ```.env.example``` file to ```.env``` and fill in your login credentials (email & password).
 
+Keep this service private to your local machine or trusted network. It uses Tractive credentials from `.env` and stores
+authentication state in the backend.
+
 ```bash
 # development
 $ npm run start
@@ -67,7 +70,7 @@ You can use the api itself like this:
    *   data: { location from tractive }
    * }
    */
-  const location = await fetch("http://localhost:3002/location?trackerId=mytrackerid")
+  const location = await fetch("http://localhost:3002/location/mytrackerid")
 
   /**
    * get a multiple locations.
@@ -78,7 +81,18 @@ You can use the api itself like this:
    *   data: [{ location from tractive }, { location from tractive }]
    * }
    */
-  const locations = await fetch("http://localhost:3002/location?trackerId=mytrackerid,mysecondtrackerid")
+  const locations = await fetch("http://localhost:3002/location/mytrackerid,mysecondtrackerid")
+
+  /**
+   * get battery level.
+   *
+   * returns:
+   * {
+   *   status: 200,
+   *   data: 94
+   * }
+   */
+  const battery = await fetch("http://localhost:3002/hardware/battery/mytrackerid")
 })
 ```
 
